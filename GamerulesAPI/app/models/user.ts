@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
+import Consumable from './consumable.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['id', 'email', 'tokenId'],
@@ -49,6 +51,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true,  serializeAs: null })
   declare updatedAt: DateTime;
+
+  @hasMany(() => Consumable, {
+    foreignKey: 'authorId', // clé étrangère dans le modèle Consumable
+  })
+  declare consumablesCreated: HasMany<typeof Consumable>;
 
   @beforeCreate()
   static async assignTokenId(user: User) {

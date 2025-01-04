@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.increments('gr_user_id');
       table.string('gr_user_name', 14).notNullable();
       table.string('gr_user_email', 64).notNullable().unique();
-      table.text('gr_user_tokenId').notNullable().unique();
+      table.text('gr_user_tokenId').notNullable();
       table.text('gr_user_password').notNullable();
       table.enum('gr_user_gender', ['M', 'F']).notNullable().defaultTo('M');
       table.integer('gr_user_level', 5).notNullable().defaultTo(1);
