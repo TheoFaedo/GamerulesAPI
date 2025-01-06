@@ -26,6 +26,12 @@ router.post('/register', [UsersController, 'register']);
 
 router.put('/logout', [UsersController, 'logout']);
 
+router.get('/me', [UsersController, 'me']);
+
+router.get('/me/consumptions', [UsersController, 'consumed']);
+
+router.post('/me/consumption', [UsersController, 'consume']);
+
 /**
  * Consumables routes
  */

@@ -49,6 +49,16 @@ export default class Consumable extends BaseModel {
   })
   declare components: ManyToMany<typeof Consumable>
 
+  @manyToMany(() => User, {
+    localKey: 'id',
+    relatedKey: 'id',
+    pivotForeignKey: 'gr_consumption_consumerId',
+    pivotRelatedForeignKey: 'gr_consumption_consumableId',
+    pivotTable: 'consumptions',
+    pivotColumns: ['gr_consumption_date', 'gr_consumption_quantity', 'gr_consumption_mealType']
+  })
+  declare consumers: ManyToMany<typeof User>
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

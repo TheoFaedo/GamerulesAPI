@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Consumable from './consumable.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -56,6 +56,16 @@ export default class User extends compose(BaseModel, AuthFinder) {
     foreignKey: 'authorId', // clé étrangère dans le modèle Consumable
   })
   declare consumablesCreated: HasMany<typeof Consumable>;
+
+  @manyToMany(() => Consumable, {
+    localKey: 'id',
+    relatedKey: 'id',
+    pivotForeignKey: 'gr_consumption_consumerId',
+    pivotRelatedForeignKey: 'gr_consumption_consumableId',
+    pivotTable: 'consumptions',
+    pivotColumns: ['gr_consumption_date', 'gr_consumption_quantity', 'gr_consumption_mealType']
+  })
+  declare consumed: ManyToMany<typeof Consumable>;
 
   @beforeCreate()
   static async assignTokenId(user: User) {

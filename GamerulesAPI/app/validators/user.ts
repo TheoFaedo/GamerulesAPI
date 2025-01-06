@@ -14,3 +14,18 @@ export const registerUserValidator = vine.compile(
         name: vine.string().trim().maxLength(14)
     })
 )
+
+export const consumeValidator = vine.compile(
+    vine.object({
+        mealId: vine.number(),
+        quantity: vine.number(),
+        date: vine.date(),
+        mealType: vine.enum(['breakfast', 'lunch', 'dinner', 'snack'])
+    })
+)
+
+export const consumedValidator = vine.compile(
+    vine.object({
+        date: vine.date().optional(),
+    })
+)
