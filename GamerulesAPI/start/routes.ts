@@ -30,11 +30,17 @@ router.get('/me', [UsersController, 'me']);
 
 router.get('/me/consumptions', [UsersController, 'consumed']);
 
-router.post('/me/consumption', [UsersController, 'consume']);
+router.post('/me/consumptions', [UsersController, 'consume']);
 
 /**
  * Consumables routes
  */
+
+router.get('/consumables/:id', [ConsumablesController, 'oneConsumable']);
+
+router.put('/consumables/:id', [ConsumablesController, 'updateConsumable']);
+
+router.delete('/consumables/:id', [ConsumablesController, 'removeConsumable']);
 
 router.get('/consumables', [ConsumablesController, 'allConsumables']);
 

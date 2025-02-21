@@ -35,3 +35,25 @@ export const createRecipeValidator = vine.compile(
         )
     })
 )
+
+export const updateConsumableValidator = vine.compile(
+    vine.object({
+        energy: vine.number().optional(),
+        carbohydrates: vine.number().optional(),
+        fats: vine.number().optional(),
+        proteins: vine.number().optional(),
+        name: vine.string().optional(),
+        serving_size: vine.string().optional(),
+        isPublic: vine.boolean().optional(),
+        components: vine.array(vine.object({
+            id: vine.number(),
+            quantity: vine.number()
+        }).optional())
+    })
+)
+
+export const consumableIdValidator = vine.compile(
+    vine.object({
+        id: vine.number().positive()
+    })
+)

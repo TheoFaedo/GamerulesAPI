@@ -1,5 +1,5 @@
 import Consumable from '#models/consumable';
-import { createFastValidator, createMealValidator, createRecipeValidator } from '#validators/consumable';
+import { consumableIdValidator, createFastValidator, createMealValidator, createRecipeValidator, updateConsumableValidator } from '#validators/consumable';
 import type { HttpContext } from '@adonisjs/core/http'
 
 type Component = {
@@ -34,6 +34,26 @@ export default class ConsumablesController {
             }
             return consumable;
         });
+    }
+
+    public async oneConsumable({ auth, params, response }: HttpContext) {
+        
+        const user = await auth.authenticate();
+        if(!user) return response.unauthorized();
+
+        const consumable = await Consumable.query().where('id', params.id).where('authorId', user.id).orWhere('isPublic', true).first();
+
+        if(!consumable) return response.notFound();
+
+        if(consumable.type === 'recipe'){
+            const components = await consumable.related('components').query().pivotColumns(['gr_recipeComposition_quantity']).exec();
+            return {
+                ...consumable.toJSON(),
+                components
+            }
+        }
+
+        return consumable;
     }
 
     public async createMeal({ auth, request, response }: HttpContext) {
@@ -105,4 +125,39 @@ export default class ConsumablesController {
         return response.created();
     }
 
+    public async updateConsumable({ auth, params, request, response }: HttpContext) {
+        
+        const user = await auth.authenticate();
+        if(!user) return response.unauthorized();
+
+        const paramsWashed = await consumableIdValidator.validate(params);
+
+        const consumable = await Consumable.query().where('id', paramsWashed.id).where('authorId', user.id).first();
+
+        if(!consumable) return response.notFound();
+
+        const data = request.only(['energy', 'carbohydrates', 'fats', 'proteins', 'name', 'serving_size', 'isPublic', 'components']);
+        const payload = await updateConsumableValidator.validate(data);
+
+        consumable.merge(payload);
+        await consumable.save();
+
+        return response.ok({ message: 'Consumable updated successfully' });
+    }
+
+    public async removeConsumable({ auth, params, response }: HttpContext) {
+        
+        const user = await auth.authenticate();
+        if(!user) return response.unauthorized();
+
+        const paramsWashed = await consumableIdValidator.validate(params);
+
+        const consumable = await Consumable.query().where('id', paramsWashed.id).where('authorId', user.id).first();
+
+        if(!consumable) return response.notFound();
+
+        await consumable.delete();
+
+        return response.ok({ message: 'Consumable deleted successfully' });
+    }
 }
