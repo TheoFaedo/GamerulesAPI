@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  api:
+    container_name: gamerules_api
+    restart: unless-stopped
+    build:
+      context: .
+      target: build
+    ports:
+      - ${PORT}:${PORT}
+      - 9229:9229
+    env_file:
+      - .env
+    volumes:
+      - ./:/home/node/app
+      - /home/node/app/node_modules
+    command: node ace serve --hmr
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+
   db:
     image: mysql:latest
     container_name: mysql-db
@@ -14,6 +35,12 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   db_data:
